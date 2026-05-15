@@ -1,0 +1,82 @@
+<template>
+    <div>
+        <h1 class="admin-title mb-6">{{ t('admin.messages') }}</h1>
+
+        <div v-if="loading" class="text-muted">{{ t('common.loading') }}</div>
+        <div v-else-if="!messages.length" class="text-muted">Sin mensajes.</div>
+        <div v-else class="space-y-3">
+            <div
+                v-for="msg in messages"
+                :key="msg.id"
+                class="message-item"
+                :class="{ unread: !msg.read }"
+            >
+                <div class="flex items-start justify-between gap-4">
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center gap-3 mb-1">
+                            <span class="msg-name">{{ msg.name }}</span>
+                            <span class="msg-email">{{ msg.email }}</span>
+                            <span v-if="!msg.read" class="unread-badge">nuevo</span>
+                        </div>
+                        <div class="msg-subject">{{ msg.subject }}</div>
+                        <p class="msg-body mt-1">{{ msg.message }}</p>
+                        <div class="msg-date">{{ formatDate(msg.created_at) }}</div>
+                    </div>
+                    <div class="flex flex-col gap-1 flex-shrink-0">
+                        <button v-if="!msg.read" @click="markRead(msg)" class="action-btn">✓ {{ t('admin.mark_read') }}</button>
+                        <button @click="deleteMsg(msg)" class="action-btn danger">🗑</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
+
+<script setup>
+import { ref, onMounted } from 'vue';
+import { useI18n } from 'vue-i18n';
+import axios from 'axios';
+
+const { t } = useI18n();
+const messages = ref([]);
+const loading = ref(true);
+
+function formatDate(d) {
+    return new Date(d).toLocaleString('es-ES', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+}
+
+async function load() {
+    const { data } = await axios.get('/api/admin/messages');
+    messages.value = data;
+}
+
+onMounted(async () => {
+    try { await load(); } finally { loading.value = false; }
+});
+
+async function markRead(msg) {
+    await axios.patch(`/api/admin/messages/${msg.id}/read`);
+    await load();
+}
+
+async function deleteMsg(msg) {
+    if (!confirm(t('admin.confirm_delete'))) return;
+    await axios.delete(`/api/admin/messages/${msg.id}`);
+    await load();
+}
+</script>
+
+<style scoped>
+.admin-title { font-family:'Oswald',sans-serif; font-weight:700; font-size:1.75rem; letter-spacing:0.1em; text-transform:uppercase; border-left:4px solid #A51C30; padding-left:1rem; }
+.message-item { background:#1A1A1A; padding:1rem; border-left:3px solid #2A2A2A; }
+.message-item.unread { border-left-color:#A51C30; }
+.msg-name { font-family:'Oswald',sans-serif; font-weight:700; font-size:0.9rem; color:#EDE8D8; }
+.msg-email { font-size:0.8rem; color:#B5AFA0; }
+.msg-subject { font-family:'Oswald',sans-serif; font-size:0.85rem; text-transform:uppercase; letter-spacing:0.05em; color:#A51C30; }
+.msg-body { font-size:0.875rem; color:#B5AFA0; white-space:pre-wrap; line-height:1.5; }
+.msg-date { font-family:'JetBrains Mono',monospace; font-size:0.7rem; color:#B5AFA0; margin-top:0.5rem; }
+.unread-badge { background:#A51C30; color:#EDE8D8; font-family:'JetBrains Mono',monospace; font-size:0.65rem; text-transform:uppercase; padding:0.1rem 0.35rem; }
+.action-btn { font-family:'Oswald',sans-serif; font-size:0.7rem; text-transform:uppercase; letter-spacing:0.05em; padding:0.3rem 0.6rem; background:#2A2A2A; color:#EDE8D8; border:none; cursor:pointer; white-space:nowrap; }
+.action-btn.danger { color:#C0392B; }
+.text-muted { color:#B5AFA0; }
+</style>

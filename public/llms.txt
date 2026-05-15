@@ -1,0 +1,22 @@
+# La Sangre Berlín
+
+> Banda de acoustic punk rock formada en Berlín en 2019. Sitio web oficial con información sobre conciertos, discografía, galería de fotos, rider técnico y contacto.
+
+## Páginas principales
+
+- [Inicio](https://www.lasangreberlin.com/): Presentación de la banda, próximos conciertos y conciertos pasados.
+- [Discografía](https://www.lasangreberlin.com/discography): Álbumes y singles publicados, con reproductor Spotify integrado.
+- [Galería](https://www.lasangreberlin.com/gallery): Fotos de la banda (prensa/EPK y generales).
+- [Contacto](https://www.lasangreberlin.com/contact): Formulario de contacto para booking, prensa y colaboraciones.
+- [Rider técnico](https://www.lasangreberlin.com/tech-rider): Especificaciones técnicas de sonido y escenario para promotores y salas.
+- [Aviso legal](https://www.lasangreberlin.com/legal/impressum): Impressum — datos del responsable del sitio.
+- [Política de privacidad](https://www.lasangreberlin.com/legal/datenschutz): Datenschutzerklärung.
+
+## Sobre la banda
+
+La Sangre Berlín es un proyecto de acoustic punk rock con raíces españolas afincado en Berlín desde 2019. Su música combina acústico crudo con energía punk y letras en español.
+
+## No disponible para rastreadores
+
+- Panel de administración (/admin)
+- API interna (/api)
