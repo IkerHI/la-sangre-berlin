@@ -1,59 +1,153 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# La Sangre Berlín — Sitio Web Oficial
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Sitio web del dúo de punk rock latino acústico **La Sangre Berlín**, desarrollado como proyecto final de ciclo (TFG DAW).
 
-## About Laravel
+**Demo:** [lasangreberlin.com](http://lasangreberlin.com)
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+---
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Stack
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+| Capa | Tecnología |
+|---|---|
+| Backend | Laravel 12 (PHP 8.2) |
+| Frontend | Vue 3 + Vite 7 (SPA) |
+| Estilos | Tailwind CSS v4 + CSS scoped |
+| Auth | Laravel Sanctum (sesión SPA) |
+| Base de datos | MySQL |
+| i18n | vue-i18n v9 (ES / EN / DE) |
+| Despliegue | Shared hosting (PiensaSolutions) vía FTP |
 
-## Learning Laravel
+---
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+## Funcionalidades
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### Sitio público
+- **Home** — Hero animado, sección About, estadísticas, embed Spotify, conciertos próximos y pasados, resumen del rider técnico
+- **Discografía** — Grid de álbumes con covers, embed Spotify por álbum
+- **Galería** — Grid filtrable (EPK / Fotos) con lightbox
+- **Tech Rider** — Rider técnico completo, channel list, stage plot, descarga de PDF
+- **Contacto / Booking** — Formulario con envío por email, info de contacto
+- **Legal** — Impressum, Datenschutz, Política de Cookies (trilingüe)
+- **Multilingüe** — Español, Inglés y Alemán con cambio de idioma persistente
 
-## Laravel Sponsors
+### Panel de administración (`/admin`)
+- Gestión de conciertos (manual + sync desde Bandsintown)
+- Gestión de discografía con subida de portadas
+- Gestión de galería con subida de imágenes
+- Rider técnico y PDFs descargables
+- Bandeja de mensajes de contacto
+- Estadísticas de visitas
+- Ajustes del sitio
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+---
 
-### Premium Partners
+## Instalación local
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+### Requisitos
+- PHP 8.2+
+- Composer
+- Node.js 20+
+- MySQL
 
-## Contributing
+### Pasos
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+```bash
+# 1. Clonar
+git clone https://github.com/IkerHI/la-sangre-berlin.git
+cd la-sangre-berlin
 
-## Code of Conduct
+# 2. Dependencias PHP
+composer install
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+# 3. Dependencias JS
+npm install
 
-## Security Vulnerabilities
+# 4. Variables de entorno
+cp .env.example .env
+php artisan key:generate
+# Edita .env con tus credenciales de base de datos
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+# 5. Base de datos
+php artisan migrate
+php artisan db:seed --class=AdminSeeder
 
-## License
+# 6. Symlink de storage
+php artisan storage:link
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+# 7. Compilar assets
+npm run build
+
+# 8. Servir
+php artisan serve
+```
+
+El sitio estará en `http://localhost:8000`.  
+Panel de administración: `http://localhost:8000/admin/login`
+
+---
+
+## Variables de entorno relevantes
+
+```env
+APP_URL=http://localhost
+
+DB_DATABASE=lasangre
+DB_USERNAME=tu_usuario
+DB_PASSWORD=tu_contraseña
+
+SPOTIFY_CLIENT_ID=...
+SPOTIFY_CLIENT_SECRET=...
+SPOTIFY_ARTIST_ID=...
+
+BANDSINTOWN_APP_ID=...
+BANDSINTOWN_ARTIST="la sangre"
+
+ADMIN_EMAIL=admin@ejemplo.com
+ADMIN_PASSWORD=contraseña_segura
+```
+
+---
+
+## Estructura del proyecto
+
+```
+├── app/
+│   ├── Http/Controllers/Api/        # Controladores REST (público + admin)
+│   ├── Models/                      # Eloquent models
+│   └── Services/                    # BandsintownService, SpotifyService
+├── resources/
+│   ├── css/app.css                  # Estilos globales + tokens de diseño
+│   ├── js/
+│   │   ├── components/              # AppHeader, AppFooter, AnnouncementBar
+│   │   ├── i18n/                    # Traducciones ES / EN / DE
+│   │   ├── pages/                   # Páginas públicas + admin
+│   │   ├── router/                  # Vue Router (SPA)
+│   │   └── stores/                  # Pinia (auth store)
+│   └── views/                       # Blade entry point
+├── routes/
+│   ├── api.php                      # API REST
+│   └── web.php                      # SPA catch-all
+└── public/build/                    # Assets compilados por Vite
+```
+
+---
+
+## Despliegue
+
+El proyecto usa un script FTP (`deploy.ps1`, no incluido en el repo) para subir al servidor de shared hosting con la siguiente estructura:
+
+```
+/html/          → web root (public/)
+/data/laravel/  → app root (resto del proyecto)
+```
+
+Post-deploy: visitar `/setup.php` para ejecutar migraciones, crear el symlink de storage y cachear la configuración.
+
+---
+
+## Autor
+
+**Iker Díaz Herrán**  
+Proyecto Final de Ciclo — Desarrollo de Aplicaciones Web (DAW)  
+[lasangreberlin.com](http://lasangreberlin.com) · [contacto@lasangreberlin.com](mailto:contacto@lasangreberlin.com)
