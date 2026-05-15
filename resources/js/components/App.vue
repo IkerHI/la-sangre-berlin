@@ -1,8 +1,8 @@
 <template>
-    <div class="min-h-screen flex flex-col" style="background-color: #0D0D0D; color: #EDE8D8;">
+    <div class="layout-shell">
         <AppHeader v-if="!isAdminRoute" />
         <AnnouncementBar v-if="!isAdminRoute" />
-        <main class="flex-1">
+        <main class="layout-main">
             <RouterView />
         </main>
         <AppFooter v-if="!isAdminRoute" />
@@ -19,3 +19,16 @@ import AnnouncementBar from './layout/AnnouncementBar.vue';
 const route = useRoute();
 const isAdminRoute = computed(() => route.path.startsWith('/admin'));
 </script>
+
+<style scoped>
+.layout-shell {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background-color: #0D0D0D;
+    color: #EDE8D8;
+}
+.layout-main {
+    flex: 1;
+}
+</style>

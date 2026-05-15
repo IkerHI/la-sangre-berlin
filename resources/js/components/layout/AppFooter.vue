@@ -87,7 +87,6 @@ const navItems = computed(() => [
 
 <style scoped>
 .site-footer {
-    margin-top: 6rem;
     border-top: 1px solid #1E1E1E;
 }
 
