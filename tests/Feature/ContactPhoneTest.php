@@ -51,7 +51,7 @@ class ContactPhoneTest extends TestCase
             'email'   => 'iker@test.com',
             'subject' => 'Hola',
             'message' => 'Mensaje de prueba',
-            'phone'   => 'no-es-un-telefono!!!',
+            'phone'   => 'abc!!!',
         ]);
 
         $response->assertStatus(422);

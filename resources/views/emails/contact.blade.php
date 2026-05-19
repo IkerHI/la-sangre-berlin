@@ -14,6 +14,14 @@
                 <a href="mailto:{{ $contactMessage->email }}">{{ $contactMessage->email }}</a>
             </td>
         </tr>
+        @if($contactMessage->phone)
+        <tr>
+            <td style="padding: 8px; font-weight:bold; border-bottom:1px solid #eee;">Teléfono</td>
+            <td style="padding: 8px; border-bottom:1px solid #eee;">
+                <a href="tel:{{ $contactMessage->phone }}">{{ $contactMessage->phone }}</a>
+            </td>
+        </tr>
+        @endif
         <tr>
             <td style="padding: 8px; font-weight:bold; border-bottom:1px solid #eee;">Asunto</td>
             <td style="padding: 8px; border-bottom:1px solid #eee;">{{ $contactMessage->subject }}</td>
