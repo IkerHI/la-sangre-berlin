@@ -31,6 +31,7 @@
                                 class="reply-textarea"
                                 rows="4"
                                 placeholder="Escribe tu respuesta..."
+                                required
                             ></textarea>
                             <div class="flex gap-2 mt-2">
                                 <button @click="sendReply(msg)" :disabled="sending" class="action-btn reply-send">
@@ -38,6 +39,7 @@
                                 </button>
                                 <button @click="cancelReply" class="action-btn">Cancelar</button>
                             </div>
+                            <p v-if="replyError" class="reply-error">{{ replyError }}</p>
                         </div>
                     </div>
                     <div class="flex flex-col gap-1 flex-shrink-0">
@@ -62,6 +64,7 @@ const loading = ref(true);
 const replyingTo = ref(null);
 const replyBody = ref('');
 const sending = ref(false);
+const replyError = ref('');
 
 function formatDate(d) {
     return new Date(d).toLocaleString('es-ES', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
@@ -95,15 +98,19 @@ function startReply(msg) {
 function cancelReply() {
     replyingTo.value = null;
     replyBody.value = '';
+    replyError.value = '';
 }
 
 async function sendReply(msg) {
     if (!replyBody.value.trim()) return;
     sending.value = true;
+    replyError.value = '';
     try {
         await axios.post(`/api/admin/messages/${msg.id}/reply`, { body: replyBody.value });
         cancelReply();
         await load();
+    } catch (err) {
+        replyError.value = err.response?.data?.message ?? 'No se pudo enviar el correo.';
     } finally {
         sending.value = false;
     }
@@ -129,5 +136,6 @@ async function sendReply(msg) {
 .action-btn:disabled { opacity:0.5; cursor:not-allowed; }
 .reply-form { border-top:1px solid #2A2A2A; padding-top:0.75rem; }
 .reply-textarea { width:100%; background:#111; border:1px solid #2A2A2A; color:#EDE8D8; padding:0.5rem; font-family:'JetBrains Mono',monospace; font-size:0.8rem; resize:vertical; }
+.reply-error { color:#C0392B; font-family:'JetBrains Mono',monospace; font-size:0.75rem; margin-top:0.5rem; }
 .text-muted { color:#B5AFA0; }
 </style>
