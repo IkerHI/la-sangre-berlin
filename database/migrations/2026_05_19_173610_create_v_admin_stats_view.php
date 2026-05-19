@@ -14,6 +14,8 @@ return new class extends Migration
             return; // VIEW uses MySQL syntax; skip in SQLite test environment
         }
 
+        // This VIEW is for direct DB inspection (phpMyAdmin) only.
+        // The StatsController reads data independently via Eloquent.
         DB::statement("
             CREATE OR REPLACE VIEW v_admin_stats AS
             SELECT

@@ -171,13 +171,14 @@
 import { ref, computed, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import axios from 'axios';
+import { useSettingsStore } from '../stores/settings';
 
 const { t, tm, locale } = useI18n();
+const settingsStore = useSettingsStore();
 const upcomingConcerts = ref([]);
 const concertsLoading = ref(true);
 const spotifyEmbedUrl = ref(null);
 const spotifyLoading = ref(true);
-const settings = ref({});
 
 const DEFAULT_BIO = `Acoustic music with a punk rock vibe! La Sangre is an acoustic Latin punk rock duo that fuses the rich heritage of Latin rock music with punk's raw, rebellious energy. With an acoustic guitar and bass, their lyrics ignite with passion and darkness, speaking truth to power and fighting for social justice and freedom.
 
@@ -186,7 +187,7 @@ Originally from Chile, La Sangre began forming in 2023 in Friedrichshain-Kreuzbe
 The project revives the raw energy of classic punk and horror punk, blending it with the spirit of Latin punk rock. Alongside mashups, versions, and covers, La Sangre offers original songs that explore powerful themes — the struggles of migration (Hombre Lobo en Berlín), tormented relationships (Sangre y Huesos), and the suffering of abandoned animals (Abandonado), among others.`;
 
 const aboutText = computed(() => {
-    const s = settings.value['about_text'];
+    const s = settingsStore.settings['about_text'];
     return s ? (s[`value_${locale.value}`] || s.value_es || DEFAULT_BIO) : DEFAULT_BIO;
 });
 
@@ -205,10 +206,7 @@ onMounted(async () => {
         document.querySelectorAll('.bb-reveal').forEach(el => obs.observe(el));
     }, 100);
 
-    try {
-        const { data } = await axios.get('/api/settings');
-        settings.value = data;
-    } catch { settings.value = {}; }
+    await settingsStore.load();
 
     try {
         const { data } = await axios.get('/api/concerts');

@@ -11,25 +11,21 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { computed, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
-import axios from 'axios';
+import { useSettingsStore } from '../../stores/settings';
 
 const { locale } = useI18n();
-const setting = ref(null);
+const store = useSettingsStore();
 
 const text = computed(() => {
-    if (!setting.value) return '';
+    const s = store.settings['announcement'];
+    if (!s) return '';
     const lang = locale.value;
-    return setting.value[`value_${lang}`] || setting.value.value_es || '';
+    return s[`value_${lang}`] || s.value_es || '';
 });
 
-onMounted(async () => {
-    try {
-        const { data } = await axios.get('/api/settings');
-        setting.value = data['announcement'] ?? null;
-    } catch { /* silent */ }
-});
+onMounted(() => store.load());
 </script>
 
 <style scoped>
