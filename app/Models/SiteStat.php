@@ -11,7 +11,7 @@ class SiteStat extends Model
 
     public static function record(string $metric): void
     {
-        static::updateOrCreate(
+        static::firstOrCreate(
             ['metric' => $metric],
             ['value' => 0]
         );
