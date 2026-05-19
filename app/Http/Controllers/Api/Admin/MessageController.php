@@ -31,8 +31,12 @@ class MessageController extends Controller
             'body' => ['required', 'string', 'max:5000'],
         ]);
 
-        Mail::to($contactMessage->email)
-            ->send(new MessageReply($contactMessage, $validated['body']));
+        try {
+            Mail::to($contactMessage->email)
+                ->send(new MessageReply($contactMessage, $validated['body']));
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'No se pudo enviar el correo.'], 503);
+        }
 
         $contactMessage->update(['read' => true]);
 

@@ -89,4 +89,17 @@ class MessageReplyTest extends TestCase
         $this->postJson("/api/admin/messages/{$msg->id}/reply", ['body' => 'Hola'])
             ->assertStatus(401);
     }
+
+    public function test_non_admin_cannot_reply(): void
+    {
+        $user = User::factory()->create(['is_admin' => false]);
+        $msg = ContactMessage::create([
+            'name' => 'Fan', 'email' => 'fan@test.com',
+            'subject' => 'X', 'message' => 'Y', 'read' => false,
+        ]);
+
+        $this->actingAs($user, 'sanctum')
+            ->postJson("/api/admin/messages/{$msg->id}/reply", ['body' => 'Hola'])
+            ->assertStatus(403);
+    }
 }
