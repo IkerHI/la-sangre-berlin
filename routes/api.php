@@ -52,6 +52,7 @@ Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function ()
     // Messages
     Route::get('/messages', [Admin\MessageController::class, 'index']);
     Route::patch('/messages/{contactMessage}/read', [Admin\MessageController::class, 'markRead']);
+    Route::post('/messages/{contactMessage}/reply', [Admin\MessageController::class, 'reply']);
     Route::delete('/messages/{contactMessage}', [Admin\MessageController::class, 'destroy']);
 
     // Stats

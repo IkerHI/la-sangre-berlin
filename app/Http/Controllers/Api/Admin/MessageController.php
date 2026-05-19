@@ -3,8 +3,11 @@
 namespace App\Http\Controllers\Api\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Mail\MessageReply;
 use App\Models\ContactMessage;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 
 class MessageController extends Controller
 {
@@ -17,6 +20,20 @@ class MessageController extends Controller
 
     public function markRead(ContactMessage $contactMessage): JsonResponse
     {
+        $contactMessage->update(['read' => true]);
+
+        return response()->json($contactMessage);
+    }
+
+    public function reply(Request $request, ContactMessage $contactMessage): JsonResponse
+    {
+        $validated = $request->validate([
+            'body' => ['required', 'string', 'max:5000'],
+        ]);
+
+        Mail::to($contactMessage->email)
+            ->send(new MessageReply($contactMessage, $validated['body']));
+
         $contactMessage->update(['read' => true]);
 
         return response()->json($contactMessage);
