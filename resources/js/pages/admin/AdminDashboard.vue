@@ -274,7 +274,7 @@ onMounted(async () => {
 .btn-panel-action:hover { border-color: #C8192A; color: #C8192A; }
 
 /* Table */
-.table-wrap { padding: 4px 8px 12px; }
+.table-wrap { padding: 4px 8px 12px; overflow-x: auto; }
 .table-th {
     display: grid;
     grid-template-columns: 1fr 160px 100px;
@@ -320,6 +320,11 @@ onMounted(async () => {
     text-align: right;
 }
 .views-unit { color: #2A2A2A; }
+
+@media (max-width: 480px) {
+    .table-th, .table-tr { grid-template-columns: 1fr 80px; gap: 8px; }
+    .th-city, .td-city { display: none; }
+}
 
 /* Quick links */
 .quick-links {

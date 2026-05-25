@@ -1,7 +1,18 @@
 <template>
     <div class="admin-shell">
+        <!-- Mobile header bar -->
+        <div class="mobile-header">
+            <button class="hamburger" @click="sidebarOpen = !sidebarOpen" :aria-expanded="sidebarOpen" aria-label="Toggle menu">
+                <span></span><span></span><span></span>
+            </button>
+            <div class="mobile-brand">LA <span>SANGRE</span> · ADMIN</div>
+        </div>
+
+        <!-- Overlay -->
+        <div v-if="sidebarOpen" class="sidebar-overlay" @click="sidebarOpen = false"></div>
+
         <!-- ── Sidebar ── -->
-        <aside class="sidebar">
+        <aside class="sidebar" :class="{ 'sidebar--open': sidebarOpen }">
             <div class="sidebar-accent-bar"></div>
 
             <!-- Brand -->
@@ -57,8 +68,9 @@
 </template>
 
 <script setup>
-import { computed, ref, onMounted } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+import { computed, ref, onMounted, watch } from 'vue';
+import { useRoute } from 'vue-router';
+import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { useAuthStore } from '../../stores/auth';
 import axios from 'axios';
@@ -68,6 +80,9 @@ const route = useRoute();
 const router = useRouter();
 const auth = useAuthStore();
 const unreadCount = ref(0);
+const sidebarOpen = ref(false);
+
+watch(() => route.path, () => { sidebarOpen.value = false; });
 
 const userInitial = computed(() => {
     const name = auth.user?.name || auth.user?.email || 'A';
@@ -310,5 +325,81 @@ async function handleLogout() {
     overflow-y: auto;
     padding: 2rem;
     background: #0D0D0D;
+}
+
+/* ── MOBILE HEADER ── */
+.mobile-header {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 52px;
+    background: #141414;
+    border-bottom: 1px solid #1E1E1E;
+    align-items: center;
+    padding: 0 1rem;
+    gap: 1rem;
+    z-index: 200;
+}
+.mobile-brand {
+    font-family: 'Oswald', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    color: #F2EDE3;
+}
+.mobile-brand span { color: #C8192A; }
+
+.hamburger {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    flex-shrink: 0;
+}
+.hamburger span {
+    display: block;
+    width: 22px;
+    height: 2px;
+    background: #F2EDE3;
+    transition: background 0.15s;
+}
+.hamburger:hover span { background: #C8192A; }
+
+.sidebar-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 149;
+}
+
+@media (max-width: 768px) {
+    .mobile-header { display: flex; }
+    .sidebar-overlay { display: block; }
+
+    .admin-shell { display: block; padding-top: 52px; }
+
+    .sidebar {
+        position: fixed;
+        top: 52px; left: 0; bottom: 0;
+        z-index: 150;
+        transform: translateX(-100%);
+        transition: transform 0.25s ease;
+    }
+    .sidebar--open {
+        transform: translateX(0);
+    }
+
+    .admin-main {
+        padding: 1.25rem 1rem;
+        min-height: calc(100vh - 52px);
+    }
+}
+
+@media (max-width: 480px) {
+    .admin-main { padding: 1rem 0.75rem; }
 }
 </style>

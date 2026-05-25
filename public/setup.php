@@ -38,18 +38,51 @@ function artisan(string $label, string $cmd): void {
 }
 
 // ── 1. DB connection ──────────────────────────────────────────────────────────
+// Laravel .env files don't follow strict INI syntax (unquoted spaces, #
+// comments, multi-line values) so parse_ini_file() returns false on most
+// real-world .env files. We read it the same way Laravel does at boot:
+// through vlucas/phpdotenv via the app's autoloader. A minimal manual
+// parser is provided as fallback in case vendor/ isn't deployed.
 echo "--- 1. Database connection ---\n";
-$env = parse_ini_file("$appRoot/.env");
-if ($env) {
+$envPath   = "$appRoot/.env";
+$autoload  = "$appRoot/vendor/autoload.php";
+$env       = null;
+
+if (!file_exists($envPath)) {
+    echo "[FAIL] .env not found at $envPath\n\n";
+} elseif (!is_readable($envPath)) {
+    echo "[FAIL] .env exists but is not readable (check permissions): $envPath\n\n";
+} else {
+    if (file_exists($autoload)) {
+        require_once $autoload;
+        try {
+            $dotenv = Dotenv\Dotenv::createArrayBacked($appRoot);
+            $env    = $dotenv->load();
+        } catch (Throwable $e) {
+            echo "[FAIL] Dotenv parse error: " . $e->getMessage() . "\n\n";
+        }
+    } else {
+        // Fallback: tiny manual parser (skip comments/blank lines, strip quotes)
+        $env = [];
+        foreach (file($envPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) as $line) {
+            $line = trim($line);
+            if ($line === '' || $line[0] === '#' || !str_contains($line, '=')) continue;
+            [$k, $v] = explode('=', $line, 2);
+            $env[trim($k)] = trim($v, " \t\"'");
+        }
+    }
+}
+
+if ($env && isset($env['DB_HOST'], $env['DB_DATABASE'], $env['DB_USERNAME'])) {
     try {
         $dsn = "mysql:host={$env['DB_HOST']};port={$env['DB_PORT']};dbname={$env['DB_DATABASE']}";
-        $pdo = new PDO($dsn, $env['DB_USERNAME'], $env['DB_PASSWORD'], [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
+        $pdo = new PDO($dsn, $env['DB_USERNAME'], $env['DB_PASSWORD'] ?? '', [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
         echo "[OK] Connected to {$env['DB_DATABASE']} @ {$env['DB_HOST']}\n\n";
     } catch (Exception $e) {
         echo "[FAIL] " . $e->getMessage() . "\n\n";
     }
-} else {
-    echo "[FAIL] Could not read .env at $appRoot/.env\n\n";
+} elseif ($env !== null) {
+    echo "[FAIL] .env loaded but DB_* keys missing (need DB_HOST, DB_DATABASE, DB_USERNAME)\n\n";
 }
 flush();
 
@@ -57,9 +90,11 @@ flush();
 echo "--- 2. Migrations ---\n";
 artisan('migrate', 'migrate --force');
 
-// ── 3. Admin seeder ───────────────────────────────────────────────────────────
-echo "--- 3. Admin seeder ---\n";
-artisan('AdminSeeder', 'db:seed --class=AdminSeeder --force');
+// ── 3. Seeders (idempotent — re-run safe) ────────────────────────────────────
+// All seeders use updateOrCreate, so re-running NEVER duplicates rows nor
+// touches admin-managed content (concerts, albums, gallery, PDFs, messages).
+echo "--- 3. Seeders ---\n";
+artisan('DatabaseSeeder (all)', 'db:seed --force');
 
 // ── 4. Storage symlink ────────────────────────────────────────────────────────
 echo "--- 4. Storage symlink ---\n";

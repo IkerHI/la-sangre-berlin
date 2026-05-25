@@ -94,7 +94,7 @@
             <!-- Configuration tabs -->
             <div class="config-tabs">
                 <button
-                    v-for="(cfg, i) in configs"
+                    v-for="(cfg, i) in linesConfigs"
                     :key="i"
                     class="config-tab"
                     :class="{ 'config-tab--active': activeConfig === i }"
@@ -105,44 +105,51 @@
                 </button>
             </div>
 
-            <div class="lines-table-wrap">
-                <div class="lines-table">
-                    <div class="lines-header">
-                        <span>{{ t('tech_rider.col_ch') }}</span>
-                        <span>{{ t('tech_rider.col_instrument') }}</span>
-                        <span>{{ t('tech_rider.col_mic') }}</span>
-                        <span>{{ t('tech_rider.col_effects') }}</span>
-                        <span>{{ t('tech_rider.col_artist') }}</span>
-                        <span>{{ t('tech_rider.col_notes') }}</span>
-                    </div>
-                    <div
-                        v-for="line in configs[activeConfig].channels"
-                        :key="line.ch"
-                        class="lines-row"
-                        :class="{
-                            'lines-row--optional': line.notes === 'Optional',
-                            'lines-row--guest': line.artist !== 'Vitxo' && line.artist !== 'Vini'
-                        }"
-                    >
-                        <span class="lines-ch">{{ String(line.ch).padStart(2,'0') }}</span>
-                        <span class="lines-inst">{{ line.instrument }}</span>
-                        <span class="lines-conn">{{ line.mic }}</span>
-                        <span class="lines-fx">{{ line.effects || '—' }}</span>
-                        <span class="lines-artist" :class="{ 'lines-artist--guest': line.artist !== 'Vitxo' && line.artist !== 'Vini' }">{{ line.artist }}</span>
-                        <span class="lines-note">{{ line.notes }}</span>
+            <div v-if="linesLoading" class="tech-notes" style="opacity:0.5">{{ t('common.loading') }}</div>
+            <template v-else-if="linesConfigs.length">
+                <div class="lines-table-wrap">
+                    <div class="lines-table">
+                        <div class="lines-header">
+                            <span>{{ t('tech_rider.col_ch') }}</span>
+                            <span>{{ t('tech_rider.col_instrument') }}</span>
+                            <span>{{ t('tech_rider.col_mic') }}</span>
+                            <span>{{ t('tech_rider.col_effects') }}</span>
+                            <span>{{ t('tech_rider.col_artist') }}</span>
+                            <span>{{ t('tech_rider.col_notes') }}</span>
+                        </div>
+                        <div
+                            v-for="line in linesConfigs[activeConfig].channels"
+                            :key="line.ch"
+                            class="lines-row"
+                            :class="{
+                                'lines-row--optional': line.notes === 'Optional',
+                                'lines-row--guest': line.artist !== 'Vitxo' && line.artist !== 'Vini'
+                            }"
+                        >
+                            <span class="lines-ch">{{ String(line.ch).padStart(2,'0') }}</span>
+                            <span class="lines-inst">{{ line.instrument }}</span>
+                            <span class="lines-conn">{{ line.mic }}</span>
+                            <span class="lines-fx">{{ line.effects || '—' }}</span>
+                            <span class="lines-artist" :class="{ 'lines-artist--guest': line.artist !== 'Vitxo' && line.artist !== 'Vini' }">{{ line.artist }}</span>
+                            <span class="lines-note">{{ line.notes }}</span>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Technical notes -->
-            <div class="tech-notes">
-                <div class="tech-notes-label">{{ t('tech_rider.tech_notes_label') }}</div>
-                <ul class="tech-notes-list">
-                    <li v-for="(note, i) in configs[activeConfig].technicalNotes" :key="i" class="tech-note">{{ note }}</li>
-                </ul>
-            </div>
+                <!-- Technical notes -->
+                <div class="tech-notes">
+                    <div class="tech-notes-label">{{ t('tech_rider.tech_notes_label') }}</div>
+                    <ul class="tech-notes-list">
+                        <li
+                            v-for="(note, i) in techNoteLines"
+                            :key="i"
+                            class="tech-note"
+                        >{{ note }}</li>
+                    </ul>
+                </div>
+            </template>
 
-            <!-- From API if available -->
+            <!-- Additional tech specs (PA, Mixer, Monitors, Backline...) -->
             <div v-if="!specsLoading && Object.keys(specs).length" class="api-specs">
                 <div v-for="(items, category) in specs" :key="category" class="specs-group">
                     <div class="specs-cat">// {{ category }}</div>
@@ -191,10 +198,10 @@
                 <div class="cta-title">{{ t('tech_rider.booking_title') }}</div>
             </div>
             <div class="cta-right">
-                <a href="mailto:lasangreberlin@gmail.com" class="btn-primary">
-                    lasangreberlin@gmail.com
+                <a href="mailto:contacto@lasangreberlin.com" class="btn-primary">
+                    contacto@lasangreberlin.com
                 </a>
-                <RouterLink to="/contact" class="btn-outline">{{ t('tech_rider.contact_form') }}</RouterLink>
+                <RouterLink to="/contact#contact-form" class="btn-outline">{{ t('tech_rider.contact_form') }}</RouterLink>
             </div>
         </section>
 
@@ -207,75 +214,38 @@ import { useI18n } from 'vue-i18n';
 import axios from 'axios';
 
 const { t, tm, locale } = useI18n();
-const specs = ref({});
 const pdfs = ref([]);
+const specs = ref({});
 const specsLoading = ref(true);
-
+const linesLoading = ref(true);
 const activeConfig = ref(0);
 
-const configs = [
-    {
-        label: 'Duo',
-        desc: 'Vitxo + Vini',
-        channels: [
-            { ch: 1,  instrument: 'Vocals',               mic: 't.bone GM 55 / Shure SM58',          effects: 'Reverb 10% · Echo/delay 5%', artist: 'Vitxo',  notes: '' },
-            { ch: 2,  instrument: 'e-Acoustic guitar',    mic: 'Shure SM81 / AKG C451 — DI Line',    effects: 'Reverb 10% · Echo/delay 5%', artist: 'Vitxo',  notes: '' },
-            { ch: 3,  instrument: 'Kick drum (suitcase)', mic: 'Behringer BA 19a (XLR)',              effects: '',                           artist: 'Vitxo',  notes: '+48v Phantom power' },
-            { ch: 4,  instrument: 'Vocals',               mic: 't.bone GM 55 / Shure SM58',          effects: 'Reverb 10% · Echo/delay 5%', artist: 'Vini',   notes: '' },
-            { ch: 5,  instrument: 'e-Acoustic bass',      mic: 'Shure SM81 / AKG C451 — DI Line',    effects: '',                           artist: 'Vini',   notes: '' },
-            { ch: 6,  instrument: 'Electric bass',        mic: 'DI Line — Pedal',                    effects: '',                           artist: 'Vini',   notes: 'Optional' },
-        ],
-        technicalNotes: [
-            't.bone GM 55 mics (#1 & #4); Behringer BA 19a mic (#3), drum throne/seat & pedal, all instruments — band-supplied.',
-            '2 mic stands + 1 high stool (bass player) necessary.',
-            '2 guitar/bass TRS cables (6.35mm) + 3 XLR cables necessary.',
-            '8-channel (USB-battery) mixer can be band-provided if needed.',
-        ],
-    },
-    {
-        label: '+Pieter',
-        desc: 'Vitxo + Vini + Pieter',
-        channels: [
-            { ch: 1,  instrument: 'Vocals',               mic: 't.bone GM 55 / Shure SM58',          effects: 'Reverb 10% · Echo/delay 5%', artist: 'Vitxo',  notes: '' },
-            { ch: 2,  instrument: 'e-Acoustic guitar',    mic: 'Shure SM81 / AKG C451 — DI Line',    effects: 'Reverb 10% · Echo/delay 5%', artist: 'Vitxo',  notes: '' },
-            { ch: 3,  instrument: 'Kick drum (suitcase)', mic: 'Behringer BA 19a (XLR)',              effects: '',                           artist: 'Vitxo',  notes: '+48v Phantom power' },
-            { ch: 4,  instrument: 'Vocals',               mic: 't.bone GM 55 / Shure SM58',          effects: 'Reverb 10% · Echo/delay 5%', artist: 'Vini',   notes: '' },
-            { ch: 5,  instrument: 'e-Acoustic bass',      mic: 'Shure SM81 / AKG C451 — DI Line',    effects: '',                           artist: 'Vini',   notes: '' },
-            { ch: 6,  instrument: 'Electric bass',        mic: 'Pedal — DI Line',                    effects: '',                           artist: 'Vini',   notes: 'Optional' },
-            { ch: 7,  instrument: 'Vocals',               mic: 'Shure SM58',                         effects: '',                           artist: 'Pieter', notes: '' },
-            { ch: 8,  instrument: 'Acoustic ukelele',     mic: 'Shure SM81 / AKG C451',              effects: '',                           artist: 'Pieter', notes: '' },
-            { ch: 9,  instrument: 'Electric guitar',      mic: 'Pedal — DI Line',                    effects: '',                           artist: 'Pieter', notes: '' },
-        ],
-        technicalNotes: [
-            't.bone GM 55 mics (#1 & #4); Behringer BA 19a mic (#3), drum throne/seat & pedal, piano stand, all instruments — band-supplied.',
-            '3 mic stands + 1 high stool (bass player) necessary.',
-            '3 guitar/bass TRS cables (6.35mm) + 3 XLR cables necessary.',
-            '8-channel (USB-battery) mixer can be band-provided if needed.',
-        ],
-    },
-    {
-        label: 'Full',
-        desc: 'Vitxo + Vini + Pieter + Rosita',
-        channels: [
-            { ch: 1,  instrument: 'Vocals',               mic: 't.bone GM 55 / Shure SM58',          effects: 'Reverb 10% · Echo/delay 5%', artist: 'Vitxo',  notes: '' },
-            { ch: 2,  instrument: 'e-Acoustic guitar',    mic: 'Shure SM81 / AKG C451 — DI Line',    effects: 'Reverb 10% · Echo/delay 5%', artist: 'Vitxo',  notes: '' },
-            { ch: 3,  instrument: 'Kick drum (suitcase)', mic: 'Behringer BA 19a (XLR)',              effects: '',                           artist: 'Vitxo',  notes: '+48v Phantom power' },
-            { ch: 4,  instrument: 'Vocals',               mic: 't.bone GM 55 / Shure SM58',          effects: 'Reverb 10% · Echo/delay 5%', artist: 'Vini',   notes: '' },
-            { ch: 5,  instrument: 'e-Acoustic bass',      mic: 'Shure SM81 / AKG C451 — DI Line',    effects: '',                           artist: 'Vini',   notes: '' },
-            { ch: 6,  instrument: 'Electric bass',        mic: 'Pedal — DI Line',                    effects: '',                           artist: 'Vini',   notes: 'Optional' },
-            { ch: 7,  instrument: 'Vocals',               mic: 'Shure SM58',                         effects: '',                           artist: 'Pieter', notes: '' },
-            { ch: 8,  instrument: 'Acoustic ukelele',     mic: 'Shure SM81 / AKG C451',              effects: '',                           artist: 'Pieter', notes: '' },
-            { ch: 9,  instrument: 'Electric guitar',      mic: 'Pedal — DI Line',                    effects: '',                           artist: 'Pieter', notes: '' },
-            { ch: 10, instrument: 'Electric piano',       mic: 'DI Line',                            effects: '',                           artist: 'Rosita', notes: '' },
-        ],
-        technicalNotes: [
-            't.bone GM 55 mics (#1 & #4); Behringer BA 19a mic (#3), drum throne/seat & pedal, piano stand, all instruments — band-supplied.',
-            '3 mic stands + 1 high stool (bass player) + 1 piano stool necessary.',
-            '4 guitar/bass/piano TRS cables (6.35mm) + 3 XLR cables necessary.',
-            '8-channel (USB-battery) mixer can be band-provided if needed.',
-        ],
-    },
-];
+const CONFIG_ORDER = ['duo', 'pieter', 'full'];
+const CONFIG_DESC  = { duo: 'Vitxo + Vini', pieter: 'Vitxo + Vini + Pieter', full: 'Vitxo + Vini + Pieter + Rosita' };
+const CONFIG_TAB_KEY = { duo: 'section_lines_tab_duo', pieter: 'section_lines_tab_pieter', full: 'section_lines_tab_full' };
+
+const rawLines = ref({});
+
+const linesConfigs = computed(() =>
+    CONFIG_ORDER.map(key => ({
+        key,
+        label: t(`tech_rider.${CONFIG_TAB_KEY[key]}`),
+        desc:  CONFIG_DESC[key],
+        channels: rawLines.value[key]?.channels ?? [],
+        tech_notes_es: rawLines.value[key]?.tech_notes_es ?? '',
+        tech_notes_de: rawLines.value[key]?.tech_notes_de ?? '',
+        tech_notes_en: rawLines.value[key]?.tech_notes_en ?? '',
+    }))
+);
+
+const techNoteLines = computed(() => {
+    const cfg = linesConfigs.value[activeConfig.value];
+    if (!cfg) return [];
+    const raw = locale.value === 'de' ? cfg.tech_notes_de
+              : locale.value === 'en' ? cfg.tech_notes_en
+              : cfg.tech_notes_es;
+    return (raw ?? '').split('\n').filter(Boolean);
+});
 
 const lookingFor = computed(() => tm('tech_rider.looking_tags'));
 
@@ -287,15 +257,21 @@ onMounted(async () => {
         document.querySelectorAll('.bb-reveal').forEach(el => obs.observe(el));
     }, 100);
 
-    try {
-        const { data } = await axios.get('/api/tech-specs');
-        specs.value = data.specs ?? {};
-        pdfs.value  = data.pdfs ?? [];
-    } catch {
-        specs.value = {};
-    } finally {
-        specsLoading.value = false;
+    const [specsRes, linesRes] = await Promise.allSettled([
+        axios.get('/api/tech-specs'),
+        axios.get('/api/rider-lines'),
+    ]);
+
+    if (specsRes.status === 'fulfilled') {
+        pdfs.value  = specsRes.value.data.pdfs  ?? [];
+        specs.value = specsRes.value.data.specs ?? {};
     }
+    specsLoading.value = false;
+
+    if (linesRes.status === 'fulfilled') {
+        rawLines.value = linesRes.value.data ?? {};
+    }
+    linesLoading.value = false;
 });
 </script>
 

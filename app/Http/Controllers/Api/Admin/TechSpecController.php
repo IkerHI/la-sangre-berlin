@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\RiderLinesConfig;
 use App\Models\TechSpec;
 use App\Models\TechSpecPdf;
 use Illuminate\Http\JsonResponse;
@@ -76,5 +77,28 @@ class TechSpecController extends Controller
         $techSpec->delete();
 
         return response()->json(null, 204);
+    }
+
+    public function updateLinesConfig(Request $request, string $config): JsonResponse
+    {
+        $validated = $request->validate([
+            'channels'      => ['required', 'array'],
+            'channels.*.ch' => ['required', 'integer'],
+            'channels.*.instrument' => ['required', 'string'],
+            'channels.*.mic'        => ['required', 'string'],
+            'channels.*.effects'    => ['nullable', 'string'],
+            'channels.*.artist'     => ['required', 'string'],
+            'channels.*.notes'      => ['nullable', 'string'],
+            'tech_notes_es' => ['nullable', 'string'],
+            'tech_notes_de' => ['nullable', 'string'],
+            'tech_notes_en' => ['nullable', 'string'],
+        ]);
+
+        $record = RiderLinesConfig::updateOrCreate(
+            ['config' => $config],
+            $validated
+        );
+
+        return response()->json($record);
     }
 }

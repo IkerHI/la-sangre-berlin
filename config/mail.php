@@ -116,7 +116,7 @@ return [
     ],
 
     'to' => [
-        'address' => env('MAIL_TO_ADDRESS', 'admin@lasangre.com'),
+        'address' => env('MAIL_TO_ADDRESS', 'contacto@lasangreberlin.com'),
     ],
 
 ];

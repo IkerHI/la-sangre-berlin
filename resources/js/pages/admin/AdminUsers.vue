@@ -223,6 +223,12 @@ async function deleteUser(u) {
 .btn-sm--danger:hover:not(:disabled) { border-color: #A51C30; color: #A51C30; }
 .btn-sm:disabled { opacity: 0.3; cursor: default; }
 
+@media (max-width: 600px) {
+    .user-row { flex-wrap: wrap; }
+    .user-date { display: none; }
+    .user-actions { width: 100%; justify-content: flex-end; margin-top: 0.25rem; }
+}
+
 .user-tag {
     font-family: 'Space Mono', monospace; font-size: 0.65rem;
     color: #666; margin-top: 0.5rem;

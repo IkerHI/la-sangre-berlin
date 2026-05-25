@@ -21,12 +21,12 @@ class Concert extends Model
 
     public function scopeUpcoming($query)
     {
-        return $query->where('status', 'upcoming')->orderBy('date', 'asc');
+        return $query->where('date', '>=', now())->orderBy('date', 'asc');
     }
 
     public function scopePast($query)
     {
-        return $query->where('status', 'past')->orderBy('date', 'desc');
+        return $query->where('date', '<', now())->orderBy('date', 'desc');
     }
 
     public function incrementViews(): void

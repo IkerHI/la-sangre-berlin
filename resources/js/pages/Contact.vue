@@ -46,7 +46,7 @@
         <div class="bb-divider"></div>
 
         <!-- ── CONTACT ── -->
-        <section class="bb-section" style="padding-top: 5rem;">
+        <section id="contact-form" class="bb-section" style="padding-top: 5rem;">
             <div class="contact-grid">
 
                 <!-- Left: info -->
@@ -59,8 +59,8 @@
                     <div class="info-stack">
                         <div class="info-block bb-reveal">
                             <div class="info-label">{{ t('contact.label_booking') }}</div>
-                            <a href="mailto:lasangreberlin@gmail.com" class="info-link">
-                                lasangreberlin@gmail.com
+                            <a href="mailto:contacto@lasangreberlin.com" class="info-link">
+                                contacto@lasangreberlin.com
                             </a>
                         </div>
                         <div class="info-block bb-reveal">
@@ -79,7 +79,7 @@
                         <div class="info-block bb-reveal">
                             <div class="info-label">{{ t('contact.label_social') }}</div>
                             <div class="info-socials">
-                                <a href="https://instagram.com/lasangreberlin" target="_blank" rel="noopener" class="social-pill">Instagram</a>
+                                <a href="https://www.instagram.com/la.sangre.berlin/" target="_blank" rel="noopener" class="social-pill">Instagram</a>
                                 <a href="https://open.spotify.com/artist/1glzEl3omzvBy2h1UCEaJg" target="_blank" rel="noopener" class="social-pill">Spotify</a>
                             </div>
                         </div>
@@ -162,10 +162,18 @@ onMounted(async () => {
     }
 });
 
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 async function submitForm() {
     errors.value = {};
     success.value = false;
     submitError.value = false;
+
+    if (!emailRegex.test(form.value.email)) {
+        errors.value = { email: [t('contact.email_invalid')] };
+        return;
+    }
+
     submitting.value = true;
 
     try {

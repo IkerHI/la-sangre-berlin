@@ -22,13 +22,19 @@ class SpotifyController extends Controller
             ]);
         }
 
-        $data = Cache::remember("spotify_tracks_{$artistId}", 3600, function () use ($artistId) {
-            return [
-                'embed_url' => $this->spotify->getArtistPlaylistEmbed($artistId),
-                'tracks'    => $this->spotify->getArtistTracks($artistId),
-            ];
+        $embedUrl = $this->spotify->getArtistPlaylistEmbed($artistId);
+
+        $tracks = Cache::remember("spotify_tracks_{$artistId}", 3600, function () use ($artistId) {
+            try {
+                return $this->spotify->getArtistTracks($artistId);
+            } catch (\Throwable) {
+                return [];
+            }
         });
 
-        return response()->json($data);
+        return response()->json([
+            'embed_url' => $embedUrl,
+            'tracks'    => $tracks,
+        ]);
     }
 }

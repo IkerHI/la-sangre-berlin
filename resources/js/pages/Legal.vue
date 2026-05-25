@@ -44,7 +44,7 @@
                         Calle Virgen del Puy 11, 31011 Pamplona (Navarra), Spain<br>
                         Phone: +34 666 904 174<br>
                         Email: <a href="mailto:contacto@lasangreberlin.com" class="legal-link">contacto@lasangreberlin.com</a><br>
-                        Activity: Independent artist and musician
+                        Activity: Web developer
                     </p>
                 </div>
                 <div class="legal-block">
@@ -71,7 +71,7 @@
                         Domicilio: Calle Virgen del Puy 11, 31011 Pamplona (Navarra), España<br>
                         Teléfono: +34 666 904 174<br>
                         Correo electrónico: <a href="mailto:contacto@lasangreberlin.com" class="legal-link">contacto@lasangreberlin.com</a><br>
-                        Actividad: Artista y músico independiente
+                        Actividad: Desarrollador web
                     </p>
                 </div>
                 <div class="legal-block">

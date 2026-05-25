@@ -18,6 +18,7 @@ Route::get('/concerts/{concert}', [ConcertController::class, 'show']);
 Route::get('/albums', [AlbumController::class, 'index']);
 Route::get('/gallery', [GalleryController::class, 'index']);
 Route::get('/tech-specs', [TechSpecController::class, 'index']);
+Route::get('/rider-lines', [TechSpecController::class, 'linesConfigs']);
 Route::get('/spotify/tracks', [SpotifyController::class, 'tracks']);
 Route::post('/contact', [ContactController::class, 'store'])->middleware('throttle:3,1');
 Route::get('/settings', [SettingsController::class, 'index']);
@@ -48,6 +49,9 @@ Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function ()
     Route::post('/tech-specs', [Admin\TechSpecController::class, 'upsert']);
     Route::post('/tech-specs/pdf', [Admin\TechSpecController::class, 'uploadPdf']);
     Route::delete('/tech-specs/{techSpec}', [Admin\TechSpecController::class, 'destroySpec']);
+
+    // Rider Lines Configs
+    Route::put('/rider-lines/{config}', [Admin\TechSpecController::class, 'updateLinesConfig']);
 
     // Messages
     Route::get('/messages', [Admin\MessageController::class, 'index']);

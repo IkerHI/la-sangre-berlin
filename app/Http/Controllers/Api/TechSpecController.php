@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\RiderLinesConfig;
 use App\Models\TechSpec;
 use App\Models\TechSpecPdf;
 use Illuminate\Http\JsonResponse;
@@ -18,5 +19,12 @@ class TechSpecController extends Controller
             'specs' => $specs,
             'pdfs'  => $pdfs,
         ]);
+    }
+
+    public function linesConfigs(): JsonResponse
+    {
+        $configs = RiderLinesConfig::all()->keyBy('config');
+
+        return response()->json($configs);
     }
 }

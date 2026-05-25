@@ -14,6 +14,7 @@
 
         <div v-if="loading" class="text-muted">{{ t('common.loading') }}</div>
         <div v-else>
+            <div class="table-scroll">
             <table class="admin-table w-full">
                 <thead>
                     <tr>
@@ -34,6 +35,7 @@
                     </tr>
                 </tbody>
             </table>
+            </div>
         </div>
 
         <!-- Modal -->
@@ -149,7 +151,7 @@ async function syncConcerts() {
     syncMsg.value = '';
     try {
         const { data } = await axios.post('/api/admin/concerts/sync');
-        syncMsg.value = `✓ ${data.synced} conciertos sincronizados`;
+        syncMsg.value = `✓ ${data.synced} sincronizados · ${data.with_ticket_offer} con ticket directo`;
         await load();
     } catch {
         syncMsg.value = 'Error al sincronizar';
@@ -178,8 +180,13 @@ async function syncConcerts() {
 .form-label { display:block; font-family:'Oswald',sans-serif; font-size:0.7rem; letter-spacing:0.1em; text-transform:uppercase; color:#B5AFA0; margin-bottom:0.25rem; }
 .form-input { width:100%; background:#0D0D0D; border:1px solid #2A2A2A; color:#EDE8D8; padding:0.5rem 0.625rem; font-size:0.875rem; outline:none; }
 .form-input:focus { border-color:#A51C30; }
-.modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.8); display:flex; align-items:center; justify-content:center; z-index:50; }
-.modal { background:#1A1A1A; padding:1.5rem; width:100%; max-width:500px; border:1px solid #2A2A2A; }
+.table-scroll { overflow-x:auto; }
+.modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.8); display:flex; align-items:center; justify-content:center; z-index:50; padding:1rem; }
+.modal { background:#1A1A1A; padding:1.5rem; width:100%; max-width:500px; border:1px solid #2A2A2A; max-height:90vh; overflow-y:auto; }
 .modal-title { font-family:'Oswald',sans-serif; font-weight:700; font-size:1.1rem; text-transform:uppercase; letter-spacing:0.1em; }
 .text-muted { color:#B5AFA0; }
+@media (max-width:600px) {
+    .modal { padding:1rem; }
+    .admin-table th, .admin-table td { padding:0.4rem 0.5rem; font-size:0.8rem; }
+}
 </style>

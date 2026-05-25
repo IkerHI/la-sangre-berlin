@@ -42,8 +42,9 @@ return [
     ],
 
     'bandsintown' => [
-        'app_id' => env('BANDSINTOWN_APP_ID', 'cd02bab338a157051f7ae53302f7552c'),
-        'artist' => env('BANDSINTOWN_ARTIST', 'La%20Sangre'),
+        'app_id'              => env('BANDSINTOWN_APP_ID', 'cd02bab338a157051f7ae53302f7552c'),
+        'artist'              => env('BANDSINTOWN_ARTIST', 'La%20Sangre'),
+        'fallback_ticket_url' => env('BANDSINTOWN_FALLBACK_TICKET_URL', 'https://bnds.us/767grh'),
     ],
 
 ];

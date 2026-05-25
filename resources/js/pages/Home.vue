@@ -168,7 +168,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, nextTick } from 'vue';
 import { useI18n } from 'vue-i18n';
 import axios from 'axios';
 import { useSettingsStore } from '../stores/settings';
@@ -198,15 +198,18 @@ function formatDate(dateStr) {
 }
 
 onMounted(async () => {
-    // Scroll reveal
     const obs = new IntersectionObserver(entries => {
         entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('bb-visible'); });
     }, { threshold: 0.08 });
-    setTimeout(() => {
+    // Re-run after each async fetch: rows rendered from API data aren't in the DOM at mount.
+    const observeReveals = () => {
         document.querySelectorAll('.bb-reveal').forEach(el => obs.observe(el));
-    }, 100);
+    };
+    observeReveals();
 
     await settingsStore.load();
+    await nextTick();
+    observeReveals();
 
     try {
         const { data } = await axios.get('/api/concerts');
@@ -216,6 +219,8 @@ onMounted(async () => {
     } finally {
         concertsLoading.value = false;
     }
+    await nextTick();
+    observeReveals();
 
     try {
         const { data } = await axios.get('/api/spotify/tracks');
@@ -225,6 +230,8 @@ onMounted(async () => {
     } finally {
         spotifyLoading.value = false;
     }
+    await nextTick();
+    observeReveals();
 });
 </script>
 
@@ -548,7 +555,7 @@ onMounted(async () => {
     padding: 1.4rem 0;
     border-bottom: 1px solid #1E1E1E;
     cursor: default;
-    transition: padding-left 0.2s;
+    transition: padding-left 0.2s, opacity 0.65s ease, transform 0.65s ease;
 }
 .concert-row:hover { padding-left: 0.75rem; }
 .concert-row:hover .concert-date { color: #C8192A; }

@@ -23,9 +23,15 @@
                         >{{ item.label }}</RouterLink>
                     </nav>
 
-                    <!-- Social -->
+                    <!-- Social + Contact -->
                     <div class="footer-social">
-                        <a href="https://instagram.com/lasangreberlin" target="_blank" rel="noopener" class="social-link">
+                        <a href="mailto:contacto@lasangreberlin.com" class="social-link">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+                                <rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 7l10 7 10-7"/>
+                            </svg>
+                            contacto@lasangreberlin.com
+                        </a>
+                        <a href="https://www.instagram.com/la.sangre.berlin/" target="_blank" rel="noopener" class="social-link">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
                                 <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="0.5" fill="currentColor"/>
                             </svg>
@@ -91,7 +97,7 @@ const navItems = computed(() => [
 }
 
 .footer-body {
-    padding: 4rem 0 2.5rem;
+    padding: 4rem 2rem 2.5rem;
 }
 
 .footer-grid {
